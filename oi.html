@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terror STEM - Site Futurista</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+<style>
+/* ===== RESET ===== */
+* {margin:0; padding:0; box-sizing:border-box; font-family: 'Orbitron', sans-serif;}
+body {background:#000; color:#0f0; overflow-x:hidden;}
+button {cursor:pointer;}
+
+/* ===== BACKGROUND ANIMADO ===== */
+body::before {
+    content:'';
+    position:fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background: radial-gradient(circle at 20% 20%, #0f0a, transparent 70%), radial-gradient(circle at 80% 80%, #0f0a, transparent 70%);
+    animation: bgMove 20s linear infinite;
+    z-index:-1;
+}
+@keyframes bgMove {0%{background-position:0 0, 100% 100%;} 100%{background-position:200% 200%, -100% -100%;}}
+
+/* ===== MENU LATERAL ===== */
+#menu {position:fixed; left:0; top:0; width:250px; height:100%; background:rgba(0,0,0,0.85); border-right:2px solid #0f0; padding:20px; display:flex; flex-direction:column; transition: transform 0.3s;}
+#menu.hidden {transform:translateX(-260px);}
+#menu button {background:#000; border:2px solid #0f0; color:#0f0; padding:10px; margin:10px 0; text-align:left; font-size:16px; transition:0.3s;}
+#menu button:hover {background:#0f0; color:#000;}
+
+/* ===== BOTAO HAMBURGUER ===== */
+#hamburger {position:fixed; top:20px; left:20px; width:40px; height:30px; display:flex; flex-direction:column; justify-content:space-between; cursor:pointer; z-index:10;}
+#hamburger div {width:100%; height:4px; background:#0f0;}
+
+/* ===== CONTEUDO PRINCIPAL ===== */
+#main {margin-left:260px; padding:20px; transition:margin-left 0.3s;}
+#main.full {margin-left:20px;}
+
+/* ===== GRID DE FASES ===== */
+#levels {display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:20px;}
+.level-card {background:rgba(0,0,0,0.8); border:2px solid #0f0; padding:15px; border-radius:10px; position:relative; transition:0.3s;}
+.level-card:hover {border-color:#0ff; transform:scale(1.05);}
+.level-card h3 {margin-bottom:10px;}
+.level-status {position:absolute; top:10px; right:10px; padding:5px 10px; border-radius:5px; background:#0f0; color:#000; font-weight:bold;}
+.level-status.locked {background:#f00; color:#fff;}
+
+/* ===== HUD PERFIL ===== */
+#profile {margin-bottom:20px;}
+#profile div {margin:5px 0;}
+.progress-bar {background:#0f0a; border:1px solid #0f0; height:20px; border-radius:10px; width:100%;}
+.progress {background:#0f0; height:100%; border-radius:10px; width:0%;}
+
+/* ===== ANIMACOES ===== */
+.fade {transition:all 0.3s ease;}
+</style>
+</head>
+<body>
+
+<!-- BOTAO HAMBURGUER -->
+<div id="hamburger"><div></div><div></div><div></div></div>
+
+<!-- MENU LATERAL -->
+<div id="menu" class="hidden">
+    <button onclick="showSection('profileSection')">Perfil</button>
+    <button onclick="showSection('levelsSection')">Fases</button>
+    <button onclick="showSection('settingsSection')">Configurações</button>
+</div>
+
+<!-- CONTEUDO PRINCIPAL -->
+<div id="main" class="full">
+
+    <!-- PERFIL -->
+    <div id="profileSection" class="fade">
+        <h2>Perfil do Jogador</h2>
+        <div>Nome: <span id="playerName">Chris Cilva</span></div>
+        <div>XP: <span id="playerXP">1200</span></div>
+        <div>Level: <span id="playerLevel">5</span></div>
+        <div>Moedas: <span id="playerCoins">350</span></div>
+        <div class="progress-bar"><div id="xpProgress" class="progress" style="width:60%"></div></div>
+    </div>
+
+    <!-- FASES -->
+    <div id="levelsSection" class="fade" style="display:none;">
+        <h2>Fases Disponíveis</h2>
+        <div id="levels"></div>
+    </div>
+
+    <!-- CONFIGURACOES -->
+    <div id="settingsSection" class="fade" style="display:none;">
+        <h2>Configurações</h2>
+        <button onclick="toggleDarkMode()">Toggle Dark/Light</button>
+    </div>
+</div>
+
+<script>
+// ===== MENU =====
+const hamburger=document.getElementById('hamburger');
+const menu=document.getElementById('menu');
+const main=document.getElementById('main');
+hamburger.onclick=()=>{menu.classList.toggle('hidden'); main.classList.toggle('full');}
+
+// ===== SECOES =====
+function showSection(id){
+    ['profileSection','levelsSection','settingsSection'].forEach(s=>{
+        document.getElementById(s).style.display='none';
+    });
+    document.getElementById(id).style.display='block';
+}
+
+// ===== DARK MODE =====
+let dark=true;
+function toggleDarkMode(){
+    if(dark){document.body.style.background='#fff'; document.body.style.color='#000'; dark=false;}
+    else{document.body.style.background='#000'; document.body.style.color='#0f0'; dark=true;}
+}
+
+// ===== GERAR FASES =====
+const levelsDiv=document.getElementById('levels');
+const totalLevels=20;
+for(let i=1;i<=totalLevels;i++){
+    const card=document.createElement('div');
+    card.className='level-card';
+    card.innerHTML=`<h3>Fase ${i}</h3><div class='level-status ${i>5?'locked':''}'>${i>5?'Bloqueada':'Desbloqueada'}</div>`;
+    card.onclick=()=>{if(i<=5) alert('Fase '+i+' selecionada!'); else alert('Fase bloqueada!');}
+    levelsDiv.appendChild(card);
+}
+
+// ===== EXEMPLO DE ATUALIZACAO DE PROGRESSO =====
+function updateXP(xp){
+    const progress=document.getElementById('xpProgress');
+    progress.style.width=Math.min(100,xp/2000*100)+'%';
+    document.getElementById('playerXP').innerText=xp;
+}
+updateXP(1200);
+</script>
+
+</body>
+</html>
